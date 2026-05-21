@@ -7,7 +7,7 @@
 - ✅ Infra Minecraft en VPS OMIRU: 6 corrales, command blocks, scoreboards, auto-colapso.
 - ✅ Anteproyecto entregado.
 - ✅ **Calibración completa**: `r_cal = 0.005037 1/s`, `c_cal = 0.010355 bloques/(oveja·s)` (5 réplicas r + 5 réplicas c con N=5).
-- ❌ Falta: 60 corridas de escenarios (12 × 5 réplicas), análisis, redacción de 3 secciones nuevas, video, ensamblar los 2 PDF.
+- ❌ Falta: 36 corridas de escenarios (12 × 3 réplicas), análisis, redacción de 3 secciones nuevas, video, ensamblar los 2 PDF.
 
 El trabajo se reparte en cuatro roles complementarios: ingeniería de datos y producción audiovisual, redacción de Resultados, redacción de Mejoras, edición y redacción de Conclusiones.
 
@@ -56,7 +56,7 @@ Cada miembro asume un rol con peso comparable. La carga se distribuye entre labo
 
 > **Convención de tipografía**: `/comando` = se tipea en el chat del juego. **BOTÓN** = se presiona el botón físico en el mundo. `skill` = se le dice a Claude Code en el chat de la terminal.
 >
-> **Por qué tick freeze**: con tick rate 10000, cada segundo real son 500 segundos de juego. Si configurás el escenario sin freezear, perdés varios segundos de experimento mientras presionás botones. `tick freeze` pausa el mundo durante el setup; `tick unfreeze` arranca el experimento desde t=0 limpio.
+> **Por qué tick freeze**: con tick rate 5000, cada segundo real son 250 segundos de juego. Si configurás el escenario sin freezear, perdés varios segundos de experimento mientras presionás botones. `tick freeze` pausa el mundo durante el setup; `tick unfreeze` arranca el experimento desde t=0 limpio.
 
 ### Fase A — Calibración de r y c (corral C2)
 
@@ -66,14 +66,14 @@ Cada miembro asume un rol con peso comparable. La carga se distribuye entre labo
 
 #### Procedimiento de UNA réplica de c (consumo)
 
-> **Nota**: con N=1 el sistema no colapsa (queda en equilibrio subcrítico). La calibración usa solo la pendiente inicial (`t ≤ 60 game-seconds`). El experimento se corre por **30 000 ticks de juego** (= 1500 game-seconds, ~6 s reales a tick rate 5000) y se detiene manualmente al alcanzar el target.
+> **Nota**: con N=5 el sistema no colapsa (N=5 < N_crit ≈ 12.16 en C2, queda subcrítico). La calibración ajusta la EDO completa (ver §6.1), no solo la pendiente inicial. El experimento se corre por **30 000 ticks de juego** (= 1500 game-seconds, ~6 s reales a tick rate 5000) y se detiene manualmente al alcanzar el target.
 >
 > **Orden crítico**: `LOCAL RESTABLECER` y `CALIBRAR R` disparan cadenas LOCAL→GLOBAL via redstone que necesitan ticks activos. Ejecutarlos **antes** de `/tick freeze`. Después de que la cadena GLOBAL termine (~1-2 s reales), recién entonces freezeás para configurar el resto.
 
 1. **LOCAL RESTABLECER C2** — llena el corral 10×10 con grass, setea K=100, G=100, Corral=2. Espera 1-2 s reales a que la cadena GLOBAL via redstone termine (sidebar muestra Corral=2, G=100, K=100).
-2. **+1 oveja** (botón del corral C2) — spawnea 1 oveja congelada (NoAI:1b).
+2. **+5 ovejas** (botón +5 del corral C2) — spawnea 5 ovejas congeladas (NoAI:1b).
 3. `/tick rate 5000` — velocidad de calibración.
-4. **INICIAR** — despierta la oveja (NoAI:0b), levanta `#running=1`, resetea t_seg=0.
+4. **INICIAR** — despierta las 5 ovejas (NoAI:0b), levanta `#running=1`, resetea t_seg=0.
 5. Observar el sidebar. Cuando `t_seg` ≥ **30000**, presionar **DETENER**. A tick rate 5000 esto toma ~6 s reales.
 6. `/tick rate 20` — vuelve a normal.
 7. Claude Code: `extrae calib c rep<N>` (siendo N = 1..5).
@@ -105,7 +105,7 @@ Esto imprime `r_cal` y `c_cal` y los escribe en `cal.json`. Compartir los dos va
 
 ### Fase B — Los 12 escenarios
 
-> Cada escenario tiene un `(corral, N)` distinto y se repite **5 veces**. Total: 60 corridas. Tiempo real estimado por corrida con tick rate 10000: ~2-5 min (escenarios supercríticos colapsan rápido; subcríticos requieren esperar a equilibrio estable). En la reunión nocturna se reparten las regulares; las irregulares las hace cada quien según su asignación.
+> Cada escenario tiene un `(corral, N)` distinto y se repite **3 veces** (réplicas reducidas de 5 a 3 por restricción de tiempo de entrega). Total: 36 corridas. Tiempo real estimado por corrida con tick rate 5000: ~2-5 min (escenarios supercríticos colapsan rápido; subcríticos requieren esperar a equilibrio estable). En la reunión nocturna se reparten las regulares; las irregulares las hace cada quien según su asignación.
 
 #### Tabla de los 12 escenarios
 
@@ -130,19 +130,20 @@ Calculado con la calibración: `N_crit` = C1: **3.04** · C2/C4/C5/C6: **12.16**
 
 1. **LOCAL RESTABLECER C\<corral\>** — el botón del corral del escenario (ej. LOCAL RESTABLECER C3 para los esc 7-9). Espera 1-2 s reales a que la cadena GLOBAL via redstone termine (sidebar muestra Corral, K, G actualizados).
 2. Combinación de **+1**, **+5**, **+10** del mismo corral hasta llegar al N del escenario. Ejemplo: N=25 en C3 → presionar **+10** dos veces y **+5** una vez (10+10+5=25).
-3. `/tick rate 10000`.
+3. `/tick rate 5000`.
 4. **INICIAR**.
-5. Esperar al evento de cierre:
-   - **Si el escenario es supercrítico** (cN > rK/4): el sistema auto-colapsa cuando G=0. No tocar nada.
-   - **Si el escenario es subcrítico** (cN < rK/4): el sistema llega a equilibrio. Esperar ~600-1200 game-ticks de juego en estabilidad (sidebar muestra G casi constante) y presionar **DETENER**.
+5. Esperar al evento de cierre. **Tope máximo: `t_seg = 150 000` ticks.** Presionar **DETENER** cuando ocurra lo **primero** de:
+   - **G colapsa a 0** (supercrítico, cN > rK/4): el auto-colapso lo detiene solo.
+   - **G se estabiliza** (subcrítico, cN < rK/4): sidebar muestra G casi constante por ~600-1200 game-ticks.
+   - **`t_seg` llega a 150 000**: tope duro — cortar aunque no haya colapsado ni asentado. La corrida parcial sigue siendo útil (`analizar.py` ajusta la EDO a la curva parcial). Si un supercrítico llega al tope sin colapsar, registrarlo: indica N mal elegido o efecto tipo-C4 (agua).
 6. `/tick rate 20`.
 7. Claude Code: `extrae corrida esc<N> rep<R>` (ej. `extrae corrida esc7 rep2`).
 
-**Repetir 5 veces** por escenario (rep1..rep5).
+**Repetir 3 veces** por escenario (rep1..rep3).
 
 ### Fase C — Análisis (Brian)
 
-Una vez todas las 70 corridas estén en `datos.csv` (la skill lo va actualizando), correr:
+Una vez todas las 46 corridas estén en `datos.csv` (36 de escenarios + 10 de calibración: 5 réplicas de r + 5 de c; la skill lo va actualizando), correr:
 
 ```bash
 python scripts/analizar.py datos.csv
@@ -190,7 +191,7 @@ Con `G = K` al inicio el término logístico se anula, entonces `dG/dt|₀ ≈ �
 
 $$c = -\frac{1}{N}\,\frac{dG}{dt}\bigg|_{t\to 0}$$
 
-`analizar.py` ajusta una recta a los datos con `t ≤ 60 s` (N=1, C2) y calcula `c = −slope/N`. Promedio de 3 réplicas → `c_cal` (unidad: bloques/(oveja·s)).
+`analizar.py` ajusta la **EDO completa** (`dG/dt = r·G·(1−G/K) − c·N`) con `r_cal` ya conocido y `c` como único parámetro libre, vía `scipy.optimize.curve_fit` con `odeint` interno (más robusto que la pendiente cruda — ver HALLAZGOS §6.6). Promedio de 5 réplicas (N=5, C2) → `c_cal` (unidad: bloques/(oveja·s)).
 
 ### 6.2 Calibrar r (regeneración)
 
@@ -198,7 +199,7 @@ Con N=0 la EDO se vuelve logística pura, solución analítica:
 
 $$G(t) = \frac{K}{1 + A\,e^{-rt}}, \quad A = \frac{K - G_0}{G_0}$$
 
-`analizar.py` ajusta con `scipy.optimize.curve_fit` (`p0=[0.01]`, `bounds=(0, ∞)`). Promedio de 3 réplicas → `r_cal` (unidad: 1/s).
+`analizar.py` ajusta con `scipy.optimize.curve_fit` (`p0=[0.01]`, `bounds=(0, ∞)`). Promedio de 5 réplicas → `r_cal` (unidad: 1/s). La calibración de r se hace con **N=0** (sin ovejas): la EDO se reduce a logística pura, así que aquí N **no** cambia a 5.
 
 ### 6.3 Ecuación calibrada (la respuesta del proyecto)
 
@@ -282,6 +283,23 @@ datos.csv
 
 El equipo no toca terminales. Solo Brian.
 
+### Convención de nombres de archivos (`logs/`)
+
+**Obligatoria** — `parse_log.py` deduce el escenario y la réplica del **nombre del archivo**. Un nombre mal puesto corrompe `datos.csv`.
+
+| Patrón                       | Para qué                                  | Ejemplo               |
+| ---------------------------- | ----------------------------------------- | --------------------- |
+| `calib_c_rep<R>.log`         | Calibración de c                          | `calib_c_rep3.log`    |
+| `calib_r_rep<R>.log`         | Calibración de r                          | `calib_r_rep3.log`    |
+| `corrida_esc<E>_rep<R>.log`  | Escenario de diseño (E = 1..12, R = 1..3) | `corrida_esc6_rep2.log` |
+
+Reglas:
+
+1. `E` sin cero a la izquierda (`esc6`, no `esc06`). `R` ∈ {1, 2, 3}.
+2. Sin espacios, sin paréntesis, sin sufijos tipo ` (1)`. Un archivo = una corrida.
+3. Todas las réplicas de un mismo escenario deben tener el **mismo N**. Si una corrida usó un N fuera del diseño, no es ese escenario.
+4. Corridas de prueba o fuera del diseño van a la subcarpeta `logs/extra/` (con cualquier nombre). `parse_log.py logs/` **no** las lee — quedan fuera de `datos.csv`.
+
 Triggers de la skill: `extrae calib c rep1`, `extrae calib r rep2`, `extrae corrida esc5 rep2`, `regenera gráficas`.
 
 Fallback manual:
@@ -340,7 +358,7 @@ python scripts/analizar.py datos.csv                     # análisis completo
 
 In-game (chat):
 
-- `/tick rate 10000` — acelera 500×. `/tick rate 20` — vuelve a normal.
+- `/tick rate 5000` — acelera 250× (calibración y escenarios). `/tick rate 20` — vuelve a normal.
 - `/scoreboard objectives list` — debe mostrar solo `contador` y `estado`.
 
 ## 13. Archivos clave

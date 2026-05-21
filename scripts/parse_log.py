@@ -50,6 +50,26 @@ ESC_CALIB_C = 101
 ESC_CALIB_R = 102
 
 
+def corral_from_escenario(esc: int) -> int | None:
+    """Corral fijo por diseño, deducido del número de escenario.
+
+    El scoreboard `Corral` del log NO es confiable: un bug del laboratorio
+    hace que el corral 6 se registre como `Corral to 5` (confunde C5 y C6).
+    Como cada escenario tiene un corral fijo por diseño, lo deducimos acá y
+    quedamos inmunes a errores de botón o del scoreboard.
+
+    Devuelve None si el escenario no está en el diseño (p. ej. esc 0 de
+    archivos `extra/`); en ese caso se usa como fallback el valor del log.
+    """
+    if 1 <= esc <= 9:
+        return (esc - 1) // 3 + 1        # esc 1-3 -> C1, 4-6 -> C2, 7-9 -> C3
+    if esc in (10, 11, 12):
+        return esc - 6                   # esc 10 -> C4, 11 -> C5, 12 -> C6
+    if esc in (ESC_CALIB_C, ESC_CALIB_R):
+        return 2                         # calibración: corral C2
+    return None
+
+
 @dataclass
 class Sample:
     escenario: int
@@ -123,6 +143,7 @@ def parse_file(path: Path, only_last_run: bool = True) -> list[Sample]:
     """
     esc, rep = infer_metadata_from_filename(path.stem)
     state = RunState(escenario=esc, replica=rep)
+    design_corral = corral_from_escenario(esc)
 
     start_line = _find_last_run_start(path) if only_last_run else 0
 
@@ -162,7 +183,8 @@ def parse_file(path: Path, only_last_run: bool = True) -> list[Sample]:
                         G=state.last_G,
                         N=0 if force_N_zero else state.N,
                         K=state.K,
-                        corral=state.corral or 0,
+                        corral=(design_corral if design_corral is not None
+                                else state.corral or 0),
                     )
                 )
 

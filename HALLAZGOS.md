@@ -93,9 +93,9 @@ $$\frac{dG}{dt} = 0.005037 \cdot G \cdot \left(1 - \frac{G}{K}\right) - 0.010355
 | 1 | C1 | 1 | 1 | — | — | — | — | |
 | 1 | C1 | 1 | 2 | — | — | — | — | |
 | 1 | C1 | 1 | 3 | — | — | — | — | |
-| 1 | C1 | 1 | 4 | — | — | — | — | |
-| 1 | C1 | 1 | 5 | — | — | — | — | |
 | 2 | C1 | 3 | 1 | — | — | — | — | |
+| 2 | C1 | 3 | 2 | — | — | — | — | |
+| 2 | C1 | 3 | 3 | — | — | — | — | |
 | ... | | | | | | | | |
 
 ### 4.3 RMS por escenario (datos vs EDO)
@@ -134,9 +134,11 @@ datos.csv (acumulativo)
 3 figuras agrupadas + rms.csv + cal.json + 12 PNG individuales
 ```
 
-### 5.4 Tick rate por fase
-- **Calibración** (r y c): `/tick rate 5000` → target `t_seg ≥ 30000` (6 s reales).
-- **Escenarios Fase B**: `/tick rate 10000` (a re-evaluar — puede cambiarse a 5000 si los subcríticos requieren parada manual).
+### 5.4 Tick rate y tope de corrida
+- **Calibración** (r y c): `/tick rate 5000` → target `t_seg ≥ 30000`.
+- **Escenarios Fase B**: `/tick rate 5000`.
+- **TPS efectivos reales**: el servidor **no alcanza 5000 TPS**. Por la carga de command blocks corre a **~450-1000 TPS reales** (medido: corridas de C4 a ~440 TPS, C2 a ~870-1040). Más ovejas = más lag = menos TPS. Subir el tick rate por encima de eso casi no cambia el tiempo real.
+- **Tope máximo por corrida: `t_seg = 150 000` ticks.** Presionar DETENER cuando ocurra lo primero: G colapsa a 0, G se estabiliza, o `t_seg` llega a 150 000. A ~700 TPS son ~3.5 min reales como máximo por corrida. Una corrida cortada en el tope sigue siendo útil: `analizar.py` ajusta la EDO a la curva parcial.
 
 ## 6. Bugs y gotchas descubiertos
 
@@ -182,10 +184,17 @@ datos.csv (acumulativo)
 
 Implementado en `calibrate_c(df, r_cal=...)`.
 
+### 6.7 El scoreboard `Corral` confunde C5 y C6
+**Problema**: el command-block del corral 6 escribe mal el scoreboard `Estado del Lab → Corral`: registra `Corral to 5` en vez de `Corral to 6`. El scoreboard `#corral_activo` sí queda en 6, pero `parse_log.py` leía `Corral` → las corridas de C6 quedaban con `corral=5` en `datos.csv` (C5 y C6 indistinguibles).
+
+**Fix**: `parse_log.py` ya no lee el `corral` del log. Lo deduce del **escenario** (`corral_from_escenario`): esc 1-3→C1, 4-6→C2, 7-9→C3, 10→C4, 11→C5, 12→C6, calib→C2. Inmune a este bug y a errores de botón. Para archivos sin escenario (`extra/`, esc 0) usa como fallback el valor del log.
+
+**Pendiente in-game**: corregir el botón de C6 para que escriba `Corral to 6`.
+
 ## 7. Decisiones de diseño documentadas
 
 1. **Calibrar solo en C2**: r y c asumidos propiedades del sistema, no del corral. Aplica a todos los escenarios. Asunción explícita en §8 de la guía.
-2. **5 réplicas por escenario** (n=3 era insuficiente — σ ruidoso, CV >15% típico).
+2. **3 réplicas por escenario** (reducido de 5 a 3 por restricción de tiempo de entrega; con n=3 el σ es más ruidoso —CV >15% típico— lo cual se asume como limitación conocida, ver sección Mejoras del artículo).
 3. **3 figuras agrupadas** en el docx (no 12 individuales). Densidad informativa mejor para 7-12 págs.
 4. **Tick rate 5000 en calibración** (no 10000). Compromise entre velocidad y reacción humana.
 5. **Skill `edo-extract` orquesta todo**: SSH/scp/parse/analyze sin que el equipo toque terminales.
@@ -217,8 +226,8 @@ Cuando se ejecuten los escenarios, contrastar contra:
 
 ## 9. Cosas pendientes / TODO
 
-- [ ] Re-evaluar tick rate de Fase B después de primeras corridas (¿10000 OK o bajar a 5000 para subcríticos?).
-- [ ] Ejecutar 60 corridas de escenarios (5 réplicas × 12 escenarios).
+- [x] Tick rate de Fase B definido en 5000 (unificado con la calibración — ver §5.4).
+- [ ] Ejecutar 36 corridas de escenarios (3 réplicas × 12 escenarios).
 - [ ] Verificar predicciones §8 contra datos.
 - [ ] Actualizar §6.5 de GUIA con `N_crit` definitivos.
 - [ ] Considerar comparar dinámica de C5 con C2 (esc 5 vs esc 11) para confirmar hipótesis "hojas saltables".

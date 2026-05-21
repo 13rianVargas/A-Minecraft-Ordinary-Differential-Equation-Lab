@@ -58,7 +58,12 @@ def logistic_no_extraction(t, r, K, G0):
 
 
 def edo(G, t, r, K, c, N):
-    return r * G * (1.0 - G / K) - c * N
+    # G no puede ser negativo: el cesped colapsa a 0 y ahi se queda
+    # (equilibrio absorbente). Sin este tope, en los escenarios
+    # supercriticos odeint diverge a -infinito y el RMS sale sin sentido.
+    G = max(G, 0.0)
+    d = r * G * (1.0 - G / K) - c * N
+    return d if (G > 0.0 or d > 0.0) else 0.0
 
 
 def calibrate_r(df: pd.DataFrame) -> float:
