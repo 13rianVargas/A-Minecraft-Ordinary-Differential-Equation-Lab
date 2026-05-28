@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Proyecto final de Ecuaciones Diferenciales — G2</title>
+
+<!-- ====== LaTeX (MathJax) ====== -->
+<script>
+  window.MathJax = {
+    tex: { inlineMath: [['\\(','\\)']], displayMath: [['\\[','\\]']] },
+    chtml: { scale: 1.05 }
+  };
+</script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap');
+
+  :root {
+    --grass: #5a9c3c; --grass-light: #7cb342; --grass-dark: #3c6e28;
+    --dirt: #7a5636; --dirt-dark: #5c3f29;
+    --stone: #c6c6c6; --stone-panel: #bdbdbd; --stone-dark: #565656;
+    --sky: #8cbeff; --sky-soft: #cfe3ff;
+    --ink: #232323; --accent: #3c8527; --gold: #fcd000;
+    --font-pixel: 'Press Start 2P', monospace;
+    --font-title: 'VT323', 'Press Start 2P', monospace;
+    --font-body: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font: 23px/1.45 var(--font-body); color: var(--ink); overflow: hidden;
+    background-color: #c3cbbb;
+    background-image:
+      repeating-linear-gradient(0deg, rgba(0,0,0,.035) 0 39px, transparent 39px 40px),
+      repeating-linear-gradient(90deg, rgba(0,0,0,.035) 0 39px, transparent 39px 40px),
+      linear-gradient(160deg, var(--sky-soft), #c3cbbb 55%);
+  }
+
+  .slide {
+    position: fixed; inset: 0; padding: 5vh 7vw 14vh;
+    display: none; flex-direction: column; justify-content: flex-start;
+    background: linear-gradient(rgba(247,245,238,.62), rgba(247,245,238,.62)),
+                url('WALLPAPER/wallpaper4.jpg') center / cover no-repeat;
+  }
+  .slide.active { display: flex; }
+
+  /* Centrado vertical + horizontal (diapos 3,4,7-15) */
+  .slide.center { justify-content: center; align-items: center; text-align: center; }
+  .slide.center .grid, .slide.center .split, .slide.center table { width: 100%; }
+  .slide.center > .card { width: min(920px, 100%); }
+  .slide.center .card, .slide.center .split .col { text-align: left; }
+
+  .slide-num {
+    position: absolute; bottom: 1.6vh; right: 2.5vw;
+    color: var(--stone-dark); font-size: 12px; letter-spacing: .08em;
+    font-family: var(--font-pixel); z-index: 5;
+  }
+
+  /* ---------- Tipografía ---------- */
+  h1 {
+    font-family: var(--font-pixel); font-size: 2em; margin: 0 0 .5em;
+    line-height: 1.45; color: var(--grass-light);
+    text-shadow: 4px 4px 0 var(--grass-dark), 6px 6px 0 rgba(0,0,0,.25);
+  }
+  h2 {
+    font-family: var(--font-title); font-size: 2.9em; margin: 0 0 .5em;
+    line-height: 1.05; color: var(--accent); font-weight: 400;
+    text-shadow: 3px 3px 0 rgba(0,0,0,.18);
+  }
+  h3 {
+    font-family: var(--font-title); font-size: 1.85em; margin: .4em 0 .25em;
+    color: var(--grass-dark); font-weight: 400; line-height: 1.1;
+  }
+  p { margin: .45em 0; }
+  ul, ol { margin: .3em 0; padding-left: 1.3em; }
+  li { margin: .4em 0; }
+  .lead { font-size: 1.7em; color: #3a3a3a; margin: .3em 0 1em; line-height: 1.4; }
+
+  .mc-bevel {
+    border: 3px solid #373737;
+    box-shadow: inset 4px 4px 0 0 rgba(255,255,255,.55), inset -4px -4px 0 0 rgba(0,0,0,.28);
+  }
+
+  /* ---------- Hero ---------- */
+  .hero { justify-content: center; align-items: center; text-align: center; }
+  .hero h1 { font-size: 2.4em; max-width: 1000px; }
+  .hero .subtitle {
+    font-family: var(--font-title); font-size: 2em; color: #2c3a22;
+    margin: .2em 0 1.3em; max-width: 900px; line-height: 1.2;
+  }
+
+  /* ---------- Ecuaciones (letrero) ---------- */
+  .eq {
+    margin: .9em auto; padding: .55em 1.1em; background: #e9dec3; color: #2a2113;
+    border: 3px solid var(--dirt-dark);
+    box-shadow: inset 3px 3px 0 0 rgba(255,255,255,.4), inset -3px -3px 0 0 rgba(0,0,0,.18);
+    max-width: 88%; font-size: 1.5em;
+  }
+  .eq mjx-container { margin: 0 !important; }
+
+  /* ---------- Cita gigante ---------- */
+  .quote {
+    font-family: var(--font-title); font-size: 4.2em; text-align: center;
+    color: var(--accent); line-height: 1.15; max-width: 1150px;
+    text-shadow: 4px 4px 0 rgba(0,0,0,.12); margin: 0;
+  }
+
+  /* ---------- Cards ---------- */
+  .grid { display: grid; gap: 1.3em; margin: .8em 0; }
+  .grid.cols-2 { grid-template-columns: 1fr 1fr; }
+  .grid.cols-3 { grid-template-columns: 1fr 1fr 1fr; }
+  .card {
+    background: var(--stone-panel); padding: 1em 1.3em; border: 3px solid #373737;
+    font-size: 1.18em;
+    box-shadow: inset 4px 4px 0 0 rgba(255,255,255,.5), inset -4px -4px 0 0 rgba(0,0,0,.25);
+  }
+  .card h3 { margin-top: 0; color: var(--accent); }
+  .card.green { background: #cfe3c0; } .card.green h3 { color: var(--grass-dark); }
+  .card.gold { background: #f0e3b0; }
+
+  /* ---------- Tabla ---------- */
+  table { border-collapse: collapse; width: 100%; font-size: 1.12em;
+          background: var(--stone-panel); border: 3px solid #373737; }
+  th, td { padding: .42em .7em; border-bottom: 2px solid #9a9a9a; text-align: left; }
+  th { background: var(--stone-dark); color: #fff; font-family: var(--font-title);
+       font-size: 1.3em; font-weight: 400; }
+  td.num { text-align: right; font-variant-numeric: tabular-nums; }
+  tbody tr:nth-child(even) { background: rgba(255,255,255,.25); }
+
+  /* ---------- Figuras ---------- */
+  .figure { text-align: center; margin-top: .4em; }
+  .figure img { max-width: 84%; max-height: 50vh; border: 4px solid #373737;
+                box-shadow: 5px 5px 0 rgba(0,0,0,.25); background: #fff; }
+  .caption { color: #3a3a3a; font-size: .95em; margin-top: .5em; font-style: italic; }
+
+  /* ---------- Énfasis ---------- */
+  .highlight { color: var(--accent); font-weight: 700; }
+  .danger { color: #b3261e; font-weight: 700; }
+  .good { color: var(--grass-dark); font-weight: 700; }
+  .badge { display: inline-block; padding: .12em .55em; font-family: var(--font-title);
+           font-size: 1.1em; border: 2px solid #373737; color: #fff; }
+  .badge.green { background: var(--grass); } .badge.orange { background: #e08a1e; } .badge.red { background: #b3261e; }
+
+  .split { display: grid; grid-template-columns: 1fr 1fr; gap: 2em; align-items: center; flex: 1; min-height: 0; }
+  .split .col img { max-width: 100%; max-height: 56vh; }
+
+  /* ========== SUELO DE PASTO PIXELADO + OVEJAS ========== */
+  .ground {
+    position: absolute; left: 0; right: 0; bottom: 0; height: 70px; z-index: -1;
+    pointer-events: none;
+  }
+  .ground .grass-top { display: none; }
+  .ground .sheep {
+    position: absolute; bottom: 12px; height: 58px; width: auto;
+    image-rendering: pixelated; image-rendering: crisp-edges;
+    filter: drop-shadow(2px 3px 0 rgba(0,0,0,.28));
+  }
+
+  /* ========== MENÚ DE MINECRAFT (diapos 1 y 16) ========== */
+  .menu {
+    justify-content: flex-start; align-items: center; text-align: center;
+    background: #2b2c50 url('WALLPAPER/wallpaper2.jpg') center / cover no-repeat;
+  }
+  .mc-logo {
+    font-family: var(--font-pixel); font-size: 2em; line-height: 1.4;
+    color: #cfcfcf; margin: 4vh auto 0; letter-spacing: .02em; max-width: 94%;
+    text-shadow: 2px 2px 0 #6a6a6a, 3px 3px 0 #4a4a4a, 4px 4px 0 #303030, 5px 5px 5px rgba(0,0,0,.5);
+  }
+  .mc-sub {
+    font-family: var(--font-pixel); font-size: .95em; color: #d8d8d8;
+    margin: .2em 0 0; text-shadow: 2px 2px 0 #333;
+  }
+  .mc-splash {
+    font-family: var(--font-pixel); font-size: 1.2em; color: var(--gold);
+    margin: .5em 0 0; text-shadow: 3px 3px 0 #8a6d00;
+    animation: splash 1s ease-in-out infinite;
+  }
+  @keyframes splash { 0%,100% { transform: scale(1);} 50% { transform: scale(1.1);} }
+  .mc-menu { width: 38%; max-width: 440px; margin-top: 2vh; display: flex; flex-direction: column; gap: .4em; }
+  .menu-btn {
+    font-family: var(--font-title); font-size: 1.05em; color: #fff; text-shadow: 2px 2px 0 #000;
+    background: #8a8a8a; border: 2px solid #000; padding: .25em; letter-spacing: .02em;
+    box-shadow: inset 2px 2px 0 rgba(255,255,255,.35), inset -2px -3px 0 rgba(0,0,0,.45);
+  }
+  .menu-btn.row { display: flex; gap: .5em; background: none; border: none; box-shadow: none; padding: 0; }
+  .menu-btn.row .menu-btn { flex: 1; }
+  .menu-gracias {
+    font-family: var(--font-pixel); font-size: 1.15em; color: var(--gold);
+    margin-top: 2.4vh; text-shadow: 2px 2px 0 #8a6d00;
+  }
+
+  /* ---------- Navegación ---------- */
+  .nav { position: fixed; bottom: 1.2vh; left: 50%; transform: translateX(-50%);
+         display: flex; gap: .5em; align-items: center; z-index: 30; }
+  .nav button {
+    cursor: pointer; font-family: var(--font-pixel); font-size: .72em;
+    padding: .55em .9em; color: #fff; text-shadow: 2px 2px 0 #000;
+    background: #8a8a8a; border: 3px solid #1d1d1d;
+    box-shadow: inset 3px 3px 0 rgba(255,255,255,.35), inset -3px -3px 0 rgba(0,0,0,.4);
+  }
+  .nav button:hover { background: var(--grass); }
+  .nav .counter { font-family: var(--font-pixel); color: #2b2b2b; font-size: .68em;
+    min-width: 5.5em; text-align: center; background: var(--stone-panel);
+    padding: .55em .6em; border: 3px solid #373737; }
+  .hint { position: fixed; bottom: 1.6vh; left: 1.5vw; color: var(--stone-dark);
+    font-size: 11px; font-family: var(--font-pixel); z-index: 30; }
+
+  @media print {
+    @page { size: 16in 9in; margin: 0; }
+    body { overflow: visible; }
+    .slide { display: flex !important; position: relative; inset: auto;
+             page-break-after: always; height: 9in; width: 16in; padding: .6in 1in 1.4in; }
+    .slide:last-child { page-break-after: avoid; }
+    .nav, .hint { display: none !important; }
+    .figure img { max-height: 5in; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ============ SLIDE 1 — MENÚ DE MINECRAFT (PORTADA) ============ -->
+<section class="slide active menu" data-slide="1">
+  <div class="mc-logo">MODELO DE CRECIMIENTO LOGÍSTICO CON EXTRACCIÓN APLICADO A LA DINÁMICA DE REGENERACIÓN DE CÉSPED EN MINECRAFT</div>
+  <div class="mc-sub">Ecuaciones Diferenciales</div>
+  <div class="mc-splash">¡Grupo 2!</div>
+  <div class="mc-menu">
+    <div class="menu-btn">Bello Ballen</div>
+    <div class="menu-btn">Cristancho Niño</div>
+    <div class="menu-btn">Gordillo Meneses</div>
+    <div class="menu-btn">Vargas Clavijo</div>
+    <div class="menu-btn">2026-1</div>
+    <div class="menu-btn">FUKL</div>
+  </div>
+  <span class="slide-num">1</span>
+</section>
+
+<!-- ============ SLIDE 2 — LA PREGUNTA (HOOK) ============ -->
+<section class="slide center" data-slide="2">
+  <div class="quote">
+    "¿Qué tan rápido se agota el recurso bajo distintos escenarios?"
+  </div>
+  <span class="slide-num">2 / 16</span>
+</section>
+
+<!-- ============ SLIDE 3 — MOTIVACIÓN ============ -->
+<section class="slide center" data-slide="3">
+  <h2 style="text-align:center;">Por qué importa este problema</h2>
+  <div class="card" style="max-width:920px; text-align:left;">
+    <h3>Por qué la EDO logística-con-consumo</h3>
+    <ul>
+      <li>Combina <span class="highlight">crecimiento autolimitado</span>
+          (logística de Verhulst, 1838) con extracción constante.</li>
+      <li>Produce <span class="highlight">equilibrios múltiples</span>,
+          <span class="highlight">bifurcaciones silla-nodo</span> y
+          <span class="highlight">colapso</span>.</li>
+      <li>Es uno de los modelos más simples que <em>captura</em> comportamientos
+          no triviales: sobrepastoreo, pesca sostenible, tala y regeneración
+          de bosques, uso de acuíferos.</li>
+    </ul>
+  </div>
+  <span class="slide-num">3 / 16</span>
+</section>
+
+<!-- ============ SLIDE 4 — PLANTEAMIENTO + OBJETIVOS ============ -->
+<section class="slide center" data-slide="4">
+  <h2>Planteamiento y objetivos</h2>
+  <p class="lead" style="max-width:1100px;">
+    Construimos un <span class="highlight">laboratorio controlado en Minecraft</span>
+    con 6 corrales y command blocks que cuentan césped tick a tick, con
+    velocidad de juego acelerada.
+  </p>
+  <div class="grid cols-2" style="margin-top:.6em;">
+    <div class="card">
+      <h3>Ventajas de Minecraft</h3>
+      <ul>
+        <li>Tiempo acelerable: con tick rate 10 000, una corrida toma ~500 s reales</li>
+        <li>Control total: \(N\), \(K\), geometría del corral</li>
+      </ul>
+    </div>
+    <div class="card green">
+      <h3>Objetivos</h3>
+      <ol>
+        <li>Calibrar experimentalmente <span class="highlight">\(r\)</span>
+            (regeneración) y <span class="highlight">\(c\)</span> (consumo)</li>
+        <li>Verificar la EDO en 12 escenarios</li>
+        <li>Detectar la bifurcación silla-nodo y estimar \(N_{\text{crít}}\)</li>
+        <li>Comparar el efecto de agua, hojas y vallas</li>
+      </ol>
+    </div>
+  </div>
+  <span class="slide-num">4 / 16</span>
+</section>
+
+<!-- ============ SLIDE 5 — LA EDO ============ -->
+<section class="slide" data-slide="5">
+  <h2>El modelo: una EDO de primer orden</h2>
+  <div class="eq" style="text-align:center;">
+    \[ \frac{dG}{dt} \;=\; r\,G\left(1 - \frac{G}{K}\right) \;-\; c\,N \]
+  </div>
+  <div class="grid cols-2" style="margin-top:.8em;">
+    <div class="card">
+      <h3>Los dos procesos</h3>
+      <ul>
+        <li>\(r\,G\,(1 - G/K)\) — regeneración logística: el césped crece, pero
+            se autolimita al llenar el corral</li>
+        <li>\(c\,N\) — consumo: cada una de las \(N\) ovejas come a tasa constante \(c\)</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Los parámetros</h3>
+      <ul>
+        <li>\(r\) [1/s] — tasa de regeneración</li>
+        <li>\(K\) [bloques] — capacidad de carga (área del corral)</li>
+        <li>\(c\) [bloques/(oveja·s)] — <em>la incógnita central</em></li>
+        <li>\(N\) [ovejas] — variable de control</li>
+      </ul>
+    </div>
+  </div>
+  <p class="lead" style="margin-top:.6em;">La pregunta se traduce en: <span class="highlight">¿cuánto vale \(c\)?</span></p>
+  <span class="slide-num">5 / 16</span>
+</section>
+
+<!-- ============ SLIDE 6 — EQUILIBRIOS Y BIFURCACIÓN ============ -->
+<section class="slide" data-slide="6">
+  <h2>Equilibrios y bifurcación silla-nodo</h2>
+  <p>Buscamos \(dG/dt = 0\). Aparte de \(G=0\), los equilibrios positivos son:</p>
+  <div class="eq" style="text-align:center;">
+    \[ G^{*}_{\pm} \;=\; \frac{K}{2}\left(1 \pm \sqrt{\,1 - \frac{4cN}{rK}\,}\right) \]
+  </div>
+  <p>El discriminante \(\Delta = 1 - \dfrac{4cN}{rK}\) decide el régimen:</p>
+  <div class="grid cols-3" style="margin-top:.3em;">
+    <div class="card green">
+      <h3><span class="badge green">Subcrítico</span></h3>
+      <p>\(\Delta > 0\): dos equilibrios. El sistema se estabiliza en \(G^{*}_{+}\). El pasto sobrevive.</p>
+    </div>
+    <div class="card gold">
+      <h3><span class="badge orange">Crítico</span></h3>
+      <p>\(\Delta = 0\): \(G^{*}_{+}\) y \(G^{*}_{-}\) se funden en \(G^{*}=K/2\). Punto de transición.</p>
+    </div>
+    <div class="card">
+      <h3><span class="badge red">Supercrítico</span></h3>
+      <p>\(\Delta < 0\): ningún equilibrio positivo. El pasto debería colapsar a 0.</p>
+    </div>
+  </div>
+  <div class="eq" style="text-align:center; margin-top:.8em;">
+    \[ N_{\text{crít}} \;=\; \frac{rK}{4c} \quad\text{(las ovejas que cruzan la bifurcación)} \]
+  </div>
+  <span class="slide-num">6 / 16</span>
+</section>
+
+<!-- ============ SLIDE 7 — METODOLOGÍA ============ -->
+<section class="slide center" data-slide="7">
+  <h2>Cómo se construye el laboratorio</h2>
+  <div class="grid cols-2">
+    <div class="card">
+      <h3>6 corrales</h3>
+      <ul>
+        <li><b>C1</b> \(5{\times}5\,(K{=}25)\) · <b>C2</b> \(10{\times}10\,(K{=}100)\) ·
+            <b>C3</b> \(15{\times}15\,(K{=}225)\)</li>
+        <li><b>C4</b> agua · <b>C5</b> hojas · <b>C6</b> vallas \((12{\times}12,\ K{=}100)\)</li>
+      </ul>
+      <h3 style="margin-top:.6em;">Botones globales</h3>
+      <p><b>FORMATEAR</b> resetea todo. <b>INICIAR</b> despierta las ovejas y arranca
+         el reloj. <b>DETENER</b> cierra la corrida.</p>
+    </div>
+    <div class="card">
+      <h3>Medición y pipeline</h3>
+      <p>Command blocks cuentan los bloques de césped
+         (<code>clone … filtered grass_block</code>); el log se descarga por SSH
+         y se parsea a CSV.</p>
+      <div style="font-family: ui-monospace, monospace; font-size:.82em; background:#e9dec3; padding:.7em; border:3px solid var(--dirt-dark); margin-top:.4em; text-align:left;">
+        Minecraft ↓ ssh + parse_log.py<br>
+        datos.csv ↓ analizar.py<br>
+        figuras + RMS + cal.json
+      </div>
+      <p class="caption" style="margin-top:.4em;">46 corridas: 10 de calibración + 36 de los 12 escenarios.</p>
+    </div>
+  </div>
+  <span class="slide-num">7 / 16</span>
+</section>
+
+<!-- ============ SLIDE 8 — CALIBRACIÓN ============ -->
+<section class="slide center" data-slide="8">
+  <h2>Calibración: midiendo \(r\) y \(c\)</h2>
+  <div class="grid cols-2">
+    <div class="card">
+      <h3>Calibrar \(r\) (con \(N=0\))</h3>
+      <p>Sin ovejas, la EDO se reduce a la <span class="highlight">logística pura</span>:</p>
+      <div class="eq" style="text-align:center; max-width:100%;">
+        \[ G(t) = \frac{K}{1 + A\,e^{-rt}} \]
+      </div>
+      <p style="text-align:center; font-size:1.15em;"><b class="highlight">\(r = 0.005037\ \text{1/s}\)</b></p>
+    </div>
+    <div class="card green">
+      <h3>Calibrar \(c\) (con \(N=5\))</h3>
+      <p>Con \(r\) conocido, ajustamos la EDO completa dejando \(c\) como único
+         parámetro libre, cerca de la saturación (\(G \approx K\)).</p>
+      <p style="text-align:center; font-size:1.15em; margin-top:1em;">
+        <b class="highlight">\(c = 0.010355\)</b></p>
+      <p style="text-align:center;">bloques/(oveja·s)</p>
+    </div>
+  </div>
+  <p class="lead" style="margin-top:.6em; text-align:center;">
+    Primera respuesta: una oveja come \(\approx 0.01\) bloques por segundo.
+  </p>
+  <span class="slide-num">8 / 16</span>
+</section>
+
+<!-- ============ SLIDE 9 — TABLA 12 ESCENARIOS ============ -->
+<section class="slide center" data-slide="9">
+  <h2>Los 12 escenarios — lo que predijo la teoría</h2>
+  <table>
+    <thead>
+      <tr><th>Esc</th><th>Corral</th><th class="num">\(K\)</th><th class="num">\(N\)</th>
+      <th class="num">\(N/N_{c}\)</th><th>Régimen</th><th class="num">\(G^{*}\) predicho</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>1</td><td>C1</td><td class="num">25</td><td class="num">1</td><td class="num">0.33</td><td><span class="badge green">subcrítico</span></td><td class="num">22.7</td></tr>
+      <tr><td>2</td><td>C1</td><td class="num">25</td><td class="num">3</td><td class="num">0.99</td><td><span class="badge orange">crítico</span></td><td class="num">13.9</td></tr>
+      <tr><td>3</td><td>C1</td><td class="num">25</td><td class="num">5</td><td class="num">1.64</td><td><span class="badge red">supercrítico</span></td><td class="num">colapso</td></tr>
+      <tr><td>4</td><td>C2</td><td class="num">100</td><td class="num">5</td><td class="num">0.41</td><td><span class="badge green">subcrítico</span></td><td class="num">88.4</td></tr>
+      <tr><td>5</td><td>C2</td><td class="num">100</td><td class="num">10</td><td class="num">0.82</td><td><span class="badge green">subcrítico</span></td><td class="num">71.1</td></tr>
+      <tr><td>6</td><td>C2</td><td class="num">100</td><td class="num">20</td><td class="num">1.64</td><td><span class="badge red">supercrítico</span></td><td class="num">colapso</td></tr>
+      <tr><td>7</td><td>C3</td><td class="num">225</td><td class="num">10</td><td class="num">0.37</td><td><span class="badge green">subcrítico</span></td><td class="num">202.1</td></tr>
+      <tr><td>8</td><td>C3</td><td class="num">225</td><td class="num">25</td><td class="num">0.91</td><td><span class="badge orange">crítico</span></td><td class="num">145.6</td></tr>
+      <tr><td>9</td><td>C3</td><td class="num">225</td><td class="num">40</td><td class="num">1.46</td><td><span class="badge red">supercrítico</span></td><td class="num">colapso</td></tr>
+      <tr><td>10</td><td>C4 agua</td><td class="num">100</td><td class="num">10</td><td class="num">0.82</td><td>obstáculo</td><td class="num">71.1</td></tr>
+      <tr><td>11</td><td>C5 hojas</td><td class="num">100</td><td class="num">10</td><td class="num">0.82</td><td>obstáculo</td><td class="num">71.1</td></tr>
+      <tr><td>12</td><td>C6 vallas</td><td class="num">100</td><td class="num">10</td><td class="num">0.82</td><td>obstáculo</td><td class="num">71.1</td></tr>
+    </tbody>
+  </table>
+  <p class="caption">La teoría predice tres regímenes + colapso para esc 3, 6 y 9.</p>
+  <span class="slide-num">9 / 16</span>
+</section>
+
+<!-- ============ SLIDE 10 — EL GIRO ============ -->
+<section class="slide center" data-slide="10">
+  <h2>El giro: lo que mostró la realidad</h2>
+  <div class="split">
+    <div class="col">
+      <p class="lead">Teoría: con \(N=20\) en C2 el pasto debe
+         <span class="danger">colapsar a 0</span> en menos de 1 000 s.</p>
+      <p class="lead">Realidad: cae hasta \(\approx 60\) bloques, <span class="highlight">rebota</span>,
+         y se queda oscilando ahí. <b>Para siempre.</b></p>
+      <p>No es un accidente — pasa en los tres supercríticos:</p>
+      <ul>
+        <li><b>esc 3</b> (C1, \(N=5\)): teoría \(\to 0\), real \(\to \approx 15\)</li>
+        <li><b>esc 6</b> (C2, \(N=20\)): teoría \(\to 0\), real \(\to \approx 60\)</li>
+        <li><b>esc 9</b> (C3, \(N=40\)): teoría \(\to 0\), real \(\to \approx 148\)</li>
+      </ul>
+    </div>
+    <div class="col figure">
+      <img src="graficas/esc_06.png" alt="Esc 6 — EDO vs datos">
+      <p class="caption">Escenario 6: la línea (EDO) se desploma a 0; la nube
+         (datos) se queda alta.</p>
+    </div>
+  </div>
+  <span class="slide-num">10 / 16</span>
+</section>
+
+<!-- ============ SLIDE 11 — AUTORREGULACIÓN ============ -->
+<section class="slide center" data-slide="11">
+  <h2>El descubrimiento: el sistema se autorregula</h2>
+  <p class="lead">Calculando el \(N\) efectivo (el que produciría la meseta observada),
+     aparece un patrón espectacular:</p>
+  <table style="max-width:760px; margin:.8em auto;">
+    <thead><tr><th>Escenario</th><th class="num">\(N\) nominal</th><th class="num">\(N\) efectivo</th><th class="num">\(N_{\text{crít}}\)</th></tr></thead>
+    <tbody>
+      <tr><td>esc 3 — C1</td><td class="num">5</td><td class="num"><b>2.9</b></td><td class="num">3.04</td></tr>
+      <tr><td>esc 6 — C2</td><td class="num">20</td><td class="num"><b>11.6</b></td><td class="num">12.16</td></tr>
+      <tr><td>esc 9 — C3</td><td class="num">40</td><td class="num"><b>24.6</b></td><td class="num">27.36</td></tr>
+    </tbody>
+  </table>
+  <p class="lead" style="text-align:center; margin-top:1em;">
+    \(N_{\text{ef}} \approx N_{\text{crít}}\) en los tres casos.</p>
+  <p class="lead" style="text-align:center;">
+    Al meter más ovejas, no aumentan el consumo: <em>se estorban</em>.<br>
+    El sistema se autoorganiza <b>en</b> la bifurcación, en vez de cruzarla.</p>
+  <span class="slide-num">11 / 16</span>
+</section>
+
+<!-- ============ SLIDE 12 — EL OBSTÁCULO DECIDE ============ -->
+<section class="slide center" data-slide="12">
+  <h2>El obstáculo decide: agua vs vallas</h2>
+  <div class="split">
+    <div class="col figure">
+      <img src="graficas/grupo_B_obstaculos.png" alt="Comparación de obstáculos">
+      <p class="caption">Los 4 corrales a \(K=100,\ N=10\). La línea negra es la EDO teórica.</p>
+    </div>
+    <div class="col">
+      <h3>Con \(N=10\) (subcrítico)</h3>
+      <ul>
+        <li><b>C2 regular:</b> \(G \approx 78\) — baseline</li>
+        <li><b>C4 agua:</b> \(G \approx 75\) — efecto leve</li>
+        <li><b>C5 hojas:</b> \(G \approx 66\) — obstáculo medio</li>
+        <li><b>C6 vallas:</b> \(G \approx {\color{#b3261e}51}\) — \(K\) efectivo reducido</li>
+      </ul>
+      <h3 style="margin-top:.7em;">Con \(N \approx 75\text{–}90\) (extremo)</h3>
+      <ul>
+        <li><b>C6 vallas:</b> <span class="danger">colapsa a</span> \(G = {\color{#b3261e}1}\)</li>
+        <li><b>C4 agua:</b> <span class="good">no colapsa</span> — meseta \(\approx 10\)</li>
+      </ul>
+      <p class="lead" style="margin-top:.6em;">El agua <span class="highlight">crea refugios</span>;
+         las vallas solo <em>achican</em> el área útil.</p>
+    </div>
+  </div>
+  <span class="slide-num">12 / 16</span>
+</section>
+
+<!-- ============ SLIDE 13 — EDO CORREGIDA ============ -->
+<section class="slide center" data-slide="13">
+  <h2>La EDO corregida — el resultado central</h2>
+  <p class="lead">Reemplazamos el consumo \(c\,N\) (constante) por uno que
+     <span class="highlight">satura</span> cuando hay poco pasto por oveja:</p>
+  <div class="eq" style="text-align:center;">
+    \[ \frac{dG}{dt} = r\,G\left(1 - \frac{G}{K}\right) - c\,N\,\frac{G}{G + h} \]
+  </div>
+  <p>El factor \(\dfrac{G}{G+h}\) es una <em>respuesta funcional</em> (Holling tipo II):
+     con \(G \gg h\) comen libres; con \(G \ll h\) la escasez las frena.
+     La media-saturación es \(h = a\,N\).</p>
+  <div class="grid cols-2" style="margin-top:.6em;">
+    <div class="card">
+      <h3>Calibración (9 corrales regulares)</h3>
+      <p style="text-align:center; font-size:1.1em;">
+        <b class="highlight">\(c = 0.01230\)</b> bloques/(oveja·s)<br>
+        <b class="highlight">\(h = a\,N\)</b>, con \(a = 3.04\)</p>
+    </div>
+    <div class="card green">
+      <h3>Mejora del ajuste — RMS promedio</h3>
+      <p style="text-align:center; font-size:1.5em; margin:.2em 0;">
+        <span class="danger">24.1</span> \(\to\) <span class="good">6.6</span></p>
+      <p style="text-align:center;">≈ <b>3.6× más preciso</b> en los 12 escenarios.</p>
+    </div>
+  </div>
+  <span class="slide-num">13 / 16</span>
+</section>
+
+<!-- ============ SLIDE 14 — CONCLUSIONES ============ -->
+<section class="slide center" data-slide="14">
+  <h2>Conclusiones</h2>
+  <div class="grid cols-2">
+    <div class="card">
+      <h3>Lo que validamos</h3>
+      <ul>
+        <li>La EDO predice los equilibrios subcríticos con error \(<1\) bloque</li>
+        <li>\(N_{\text{crít}} = rK/4c\) marca bien la frontera de la bifurcación</li>
+        <li>\(r\) y \(c\) son medibles y reproducibles (\(\text{CV} < 10\%\))</li>
+      </ul>
+    </div>
+    <div class="card green">
+      <h3>Lo que descubrimos</h3>
+      <ul>
+        <li>El sistema <span class="highlight">no colapsa</span>: se autorregula a \(N_{\text{ef}} \approx N_{\text{crít}}\)</li>
+        <li>El tipo de obstáculo importa: agua = refugio, vallas = \(K\) reducido</li>
+        <li>El consumo real es <span class="highlight">ratio-dependiente</span></li>
+      </ul>
+    </div>
+  </div>
+  <div class="eq" style="text-align:center; margin-top:.8em;">
+    \[ c \approx 0.012\ \text{bloques/(oveja·s), modulado por el hacinamiento.} \]
+  </div>
+  <h3 style="margin-top:.5em;">Trabajo futuro</h3>
+  <p>Modelo espacial explícito (refugios), más réplicas, otros obstáculos.</p>
+  <span class="slide-num">14 / 16</span>
+</section>
+
+<!-- ============ SLIDE 15 — REFERENCIAS ============ -->
+<section class="slide center" data-slide="15">
+  <h2>Referencias</h2>
+  <ul style="line-height:1.7; max-width:1150px; text-align:left;">
+    <li>Verhulst, P. F. (1838). Notice sur la loi que la population suit dans son
+        accroissement. <i>Correspondance mathématique et physique</i>, 10, 113–121.</li>
+    <li>Holling, C. S. (1959). The components of predation as revealed by a study
+        of small-mammal predation of the European pine sawfly. <i>The Canadian
+        Entomologist</i>, 91(5), 293–320.</li>
+    <li>Strogatz, S. H. (2018). <i>Nonlinear dynamics and chaos</i> (2nd ed.). CRC Press.</li>
+    <li>Murray, J. D. (2002). <i>Mathematical biology I: An introduction</i> (3rd ed.). Springer.</li>
+    <li>May, R. M. (1977). Thresholds and breakpoints in ecosystems with a
+        multiplicity of stable states. <i>Nature</i>, 269(5628), 471–477.</li>
+    <li>Arditi, R., &amp; Ginzburg, L. R. (1989). Coupling in predator–prey dynamics:
+        ratio-dependence. <i>Journal of Theoretical Biology</i>, 139(3), 311–326.</li>
+  </ul>
+  <span class="slide-num">15 / 16</span>
+</section>
+
+<!-- ============ SLIDE 16 — CIERRE (igual que la portada) ============ -->
+<section class="slide menu" data-slide="16">
+  <div class="mc-logo">MODELO DE CRECIMIENTO LOGÍSTICO CON EXTRACCIÓN APLICADO A LA DINÁMICA DE REGENERACIÓN DE CÉSPED EN MINECRAFT</div>
+  <div class="mc-sub">Ecuaciones Diferenciales</div>
+  <div class="mc-splash">¡Grupo 2!</div>
+  <div class="mc-menu">
+    <div class="menu-btn">Bello Ballen</div>
+    <div class="menu-btn">Cristancho Niño</div>
+    <div class="menu-btn">Gordillo Meneses</div>
+    <div class="menu-btn">Vargas Clavijo</div>
+    <div class="menu-btn">2026-1</div>
+    <div class="menu-btn">FUKL</div>
+  </div>
+  <div class="menu-gracias">¡Gracias por su atención!</div>
+  <span class="slide-num">16</span>
+</section>
+
+<!-- ============ NAV ============ -->
+<nav class="nav" aria-label="Navegación">
+  <button onclick="go(-1)" title="Anterior (←)">◄</button>
+  <span class="counter" id="counter">1 / 16</span>
+  <button onclick="go(1)" title="Siguiente (→)">►</button>
+</nav>
+<div class="hint">← →  ·  ESPACIO  ·  F11</div>
+
+<script>
+  // ----- Suelo de pasto + ovejas en TODAS las diapositivas -----
+  const SHEEP = [
+    'OVEJAS/White_Sheep_JE3_BE6.webp',
+    'OVEJAS/OvejaDeLaboratorio.png',
+    'OVEJAS/Orange_Sheep.webp',
+    'OVEJAS/Sheared_White_Sheep.webp'
+  ];
+  const slides = document.querySelectorAll('.slide');
+  slides.forEach((s, k) => {
+    const g = document.createElement('div');
+    g.className = 'ground';
+    g.innerHTML = '<div class="grass-top"></div>';
+    const left  = SHEEP[k % SHEEP.length];
+    const right = SHEEP[(k + 2) % SHEEP.length];
+    const lx = 4 + (k % 3) * 2, rx = 80 + (k % 4) * 3;
+    g.insertAdjacentHTML('beforeend',
+      `<img class="sheep" src="${left}"  style="left:${lx}%;  height:${56 + (k%3)*6}px" alt="">`);
+    g.insertAdjacentHTML('beforeend',
+      `<img class="sheep" src="${right}" style="left:${rx}%; height:${52 + (k%2)*8}px" alt="">`);
+    s.appendChild(g);
+  });
+
+  // ----- Navegación -----
+  const counter = document.getElementById('counter');
+  let i = 0;
+  function show(n) {
+    i = Math.max(0, Math.min(slides.length - 1, n));
+    slides.forEach((s, k) => s.classList.toggle('active', k === i));
+    counter.textContent = (i + 1) + ' / ' + slides.length;
+  }
+  function go(d) { show(i + d); }
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') { e.preventDefault(); go(1); }
+    if (e.key === 'ArrowLeft' || e.key === 'PageUp') { e.preventDefault(); go(-1); }
+    if (e.key === 'Home') { e.preventDefault(); show(0); }
+    if (e.key === 'End') { e.preventDefault(); show(slides.length - 1); }
+  });
+  document.body.addEventListener('click', (e) => {
+    if (e.target.closest('.nav') || e.target.closest('a')) return;
+    go(1);
+  });
+</script>
+</body>
+</html>
