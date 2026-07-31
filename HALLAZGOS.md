@@ -4,16 +4,23 @@
 
 ## 1. Parámetros calibrados del modelo
 
-**EDO**: `dG/dt = r·G·(1 − G/K) − c·N`
+**EDO original** (Estado del arte / Metodología del docx, eq. 2):
+`dG/dt = r·G·(1 − G/K) − c·N`
+
+**EDO refinada con Holling Tipo II** (Resultados del docx, eq. 5):
+`dG/dt = r·G·(1 − G/K) − c·N·G/(G + h)`
 
 | Parámetro | Valor | Unidad | Réplicas |
 |---|---|---|---|
 | **r_cal** | **0.005037** | 1/s (game-segundo) | 5 (esc=102) |
 | **c_cal** | **0.010355** | bloques/(oveja·s) | 5 (esc=101, N=5) |
+| **h** | **K/2** (e.g. 50 para C2) | bloques | asumido por literatura (Real 1977; Turchin 2003) |
 
-**Ecuación calibrada final**:
+**Ecuación calibrada del proyecto** (eq. 4 del docx):
 
 $$\frac{dG}{dt} = 0.005037 \cdot G \cdot \left(1 - \frac{G}{K}\right) - 0.010355 \cdot N$$
+
+**Equilibrio Holling** (eq. 6 del docx): `G² − (K−h)·G + K·(cN/r − h) = 0`.
 
 ### Estadísticas de calibración
 
@@ -231,6 +238,45 @@ Cuando se ejecuten los escenarios, contrastar contra:
 - [ ] Verificar predicciones §8 contra datos.
 - [ ] Actualizar §6.5 de GUIA con `N_crit` definitivos.
 - [ ] Considerar comparar dinámica de C5 con C2 (esc 5 vs esc 11) para confirmar hipótesis "hojas saltables".
+
+## 11. Refinamiento del modelo: Respuesta Funcional Tipo II de Holling
+
+**Problema detectado en las corridas**: la EDO original predice colapso a G=0 cuando cN > rK/4 (supercrítico), pero los datos experimentales muestran **mesetas estables**:
+
+| Esc | Predicción orig | G observado | Diferencia |
+|---|---|---|---|
+| 3 (C1 N=5) | 0 | 11-15 | ≈ 13 |
+| 6 (C2 N=20) | 0 | 55-58 | ≈ 56 |
+| 9 (C3 N=40) | 0 | 126-158 | ≈ 142 |
+
+**Diagnóstico**: el término `−cN` asume tasa máxima constante. Realidad: ovejas pierden tiempo buscando cuando G es escaso. Solución: respuesta funcional saturable Tipo II (Holling, 1959).
+
+**RMS comparativo** (eq. orig vs Holling con h=K/2):
+
+| Esc | Régimen | RMS orig | RMS Holling | Mejora |
+|---|---|---|---|---|
+| 1 | sub fuerte | 1.5 | 2.1 | −36 % |
+| 2 | crítico | 4.1 | 3.1 | **+24 %** |
+| 3 | supercrítico | 13.9 | 2.6 | **+81 %** 🎯 |
+| 4 | sub | 2.9 | 3.5 | −20 % |
+| 5 | sub-medio | 8.6 | 6.4 | **+25 %** |
+| 6 | supercrítico | 57.8 | 6.1 | **+89 %** 🎯🎯 |
+| 7 | sub fuerte | 4.4 | 9.0 | −105 % |
+| 8 | crítico | 25.9 | 14.3 | **+45 %** |
+| 9 | supercrítico | 25.1 | 12.7 | **+49 %** 🎯 |
+| 10 | C4 agua | 8.0 | 8.1 | −2 % |
+| 11 | C5 hojas | 6.4 | 18.3 | −186 % |
+| 12 | C6 vallas | 18.8 | 31.5 | −68 % |
+
+**Interpretación**:
+- Holling **dramáticamente mejor** en supercríticos y críticos donde el modelo original fallaba.
+- Holling **peor** en subcríticos fuertes — porque el factor saturable subestima el consumo cuando G ≈ K. Ambos modelos son complementarios.
+- C6 vallas: **ambos modelos fallan** porque el problema no es la respuesta funcional sino zonas físicamente inaccesibles → `K_efectivo < K`. Requiere modelo asimétrico (sección Mejoras del docx).
+
+**Justificación de h = K/2** (en lugar de K/10 literatura clásica):
+- Literatura (Real 1977; Turchin 2003) reporta h/K entre 0.1 y 0.5 según dificultad de búsqueda.
+- En corrales discretos de Minecraft (bloques individuales), las ovejas pierden mucho tiempo de búsqueda cuando G es escaso.
+- h = K/2 ajusta consistentemente las 3 mesetas observadas en supercríticos.
 
 ## 10. Referencias rápidas
 
