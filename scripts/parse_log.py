@@ -16,8 +16,8 @@ Pairing strategy: each t_seg update is the canonical timestamp; the most-recent
 
 Usage:
   python parse_log.py <log_file_or_dir> <output_csv>
-  python parse_log.py logs/corrida_esc5_rep2.log datos.csv          # single file
-  python parse_log.py logs/ datos.csv                                # all *.log
+  python parse_log.py logs/corrida_esc5_rep2.log data/timeseries.csv  # one file
+  python parse_log.py logs/ data/timeseries.csv                       # all logs
 """
 
 from __future__ import annotations
@@ -51,22 +51,24 @@ ESC_CALIB_R = 102
 
 
 def corral_from_escenario(esc: int) -> int | None:
-    """Corral fijo por diseño, deducido del número de escenario.
+    """Corral fixed by experimental design, derived from the scenario number.
 
-    El scoreboard `Corral` del log NO es confiable: un bug del laboratorio
-    hace que el corral 6 se registre como `Corral to 5` (confunde C5 y C6).
-    Como cada escenario tiene un corral fijo por diseño, lo deducimos acá y
-    quedamos inmunes a errores de botón o del scoreboard.
+    The `Corral` scoreboard in the log is NOT trustworthy: a defect in the
+    in-world command-block chain records corral 6 as `Corral to 5`, conflating
+    C5 and C6. Since every scenario uses a fixed corral by design, deriving it
+    here makes the parser immune to both that defect and to an operator
+    pressing the wrong button.
 
-    Devuelve None si el escenario no está en el diseño (p. ej. esc 0 de
-    archivos `extra/`); en ese caso se usa como fallback el valor del log.
+    Returns None when the scenario is not part of the design (for example the
+    scenario 0 produced by ad-hoc files under `extra/`), in which case the
+    value observed in the log is used as a fallback.
     """
     if 1 <= esc <= 9:
-        return (esc - 1) // 3 + 1        # esc 1-3 -> C1, 4-6 -> C2, 7-9 -> C3
+        return (esc - 1) // 3 + 1        # 1-3 -> C1, 4-6 -> C2, 7-9 -> C3
     if esc in (10, 11, 12):
-        return esc - 6                   # esc 10 -> C4, 11 -> C5, 12 -> C6
+        return esc - 6                   # 10 -> C4, 11 -> C5, 12 -> C6
     if esc in (ESC_CALIB_C, ESC_CALIB_R):
-        return 2                         # calibración: corral C2
+        return 2                         # calibration runs use corral C2
     return None
 
 
@@ -199,7 +201,7 @@ def collect_files(target: Path) -> list[Path]:
             list(target.glob("*.log")) + list(target.glob("*.log.gz"))
         )
         return files
-    raise FileNotFoundError(f"No existe: {target}")
+    raise FileNotFoundError(f"No such file or directory: {target}")
 
 
 def write_csv(samples: list[Sample], out: Path) -> None:
@@ -230,7 +232,7 @@ def main(argv: list[str]) -> int:
         all_samples.extend(samples)
 
     if not all_samples:
-        print("Sin muestras parseadas.", file=sys.stderr)
+        print("No samples parsed.", file=sys.stderr)
         return 1
 
     write_csv(all_samples, out)

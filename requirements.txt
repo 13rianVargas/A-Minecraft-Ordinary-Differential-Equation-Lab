@@ -1,0 +1,17 @@
+# Python 3.11+ (developed and verified on 3.14.5)
+
+# Numerical core: ODE integration (solve_ivp) and parameter estimation (curve_fit)
+numpy==2.4.5
+scipy==1.17.1
+
+# Replica aggregation and the CSV/RMS tables
+pandas==3.0.3
+
+# Headless figure generation (Agg backend)
+matplotlib==3.10.9
+
+# Report assembly (scripts/build_report.py)
+python-docx==1.2.0
+
+# Test suite
+pytest==8.3.4
