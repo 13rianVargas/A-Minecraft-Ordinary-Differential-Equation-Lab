@@ -251,8 +251,7 @@ With your own server, copy `.env.example` to `.env`, fill it in, then:
 │   └── test_parse_log.py
 ├── docs/
 │   ├── FINDINGS.md             # model, protocol, results, known defects
-│   ├── presentation.html       # self-contained slide deck
-│   └── course-brief/           # course material, for context
+│   └── presentation.html       # self-contained slide deck
 ├── deliverables/               # generated .docx reports
 ├── assets/                     # illustration material
 ├── requirements.txt
@@ -299,6 +298,5 @@ Under the supervision of **Paul Fernando Camargo Toro**.
 ## License
 
 Source code is released under the [MIT License](LICENSE). Experimental data,
-figures and written documents are the research output of the authors; course
-material under `docs/course-brief/` and Minecraft assets under `assets/` are
-excluded. See [LICENSE](LICENSE) for details.
+figures and written documents are the research output of the authors; Minecraft
+assets under `assets/` are excluded. See [LICENSE](LICENSE) for details.

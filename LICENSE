@@ -29,9 +29,5 @@ Experimental data under `data/`, generated figures under `figures/`, and the
 written documents under `docs/` and `deliverables/` are the research output of
 the authors named above; please cite the repository if you reuse them.
 
-Files under `docs/course-brief/` are course material authored by the teaching
-staff and are reproduced here for context only. They are not covered by the
-MIT license.
-
 Sheep textures under `assets/textures-sheep/` are Minecraft assets belonging to
 Mojang Studios and are included for illustration only.
