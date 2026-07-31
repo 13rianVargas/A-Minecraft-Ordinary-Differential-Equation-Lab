@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-generar_plantilla_pf.py — Build PF-G2-...docx and BEPF-G2-...docx with the
+build_report.py — Build PF-G2-...docx and BEPF-G2-...docx with the
 exact format required by the assignment (Arial 12, doble espacio, justificado,
 una sola columna, sin hoja de presentación).
 
@@ -16,8 +16,8 @@ will fill in.
 Section 11 (Referencias APA) reproduces the 6 references from the anteproyecto.
 
 Output:
-  templates/PF-G2-Bello Ballen, Cristancho Niño, Gordillo Meneses, Vargas Clavijo.docx
-  templates/BEPF-G2-Bello Ballen, Cristancho Niño, Gordillo Meneses, Vargas Clavijo.docx
+  deliverables/PF-G2-Bello Ballen, Cristancho Niño, Gordillo Meneses, Vargas Clavijo.docx
+  deliverables/BEPF-G2-Bello Ballen, Cristancho Niño, Gordillo Meneses, Vargas Clavijo.docx
 """
 
 from __future__ import annotations
@@ -33,9 +33,9 @@ from docx.oxml.ns import qn
 from docx.shared import Cm, Inches, Pt
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
-GRAFICAS_DIR = PROJECT_ROOT / "graficas"
-CAL_JSON = PROJECT_ROOT / "cal.json"
-RMS_CSV = PROJECT_ROOT / "rms.csv"
+FIGURES_DIR = PROJECT_ROOT / "figures"
+CAL_JSON = PROJECT_ROOT / "data" / "calibration.json"
+RMS_CSV = PROJECT_ROOT / "data" / "rms.csv"
 
 TITLE = (
     "MODELO DE CRECIMIENTO LOGÍSTICO CON EXTRACCIÓN APLICADO A LA "
@@ -494,7 +494,7 @@ def _render_resultados(doc: Document) -> None:
     )
     add_picture_with_caption(
         doc,
-        GRAFICAS_DIR / "grupo_A_K_creciente.png",
+        FIGURES_DIR / "group_a_carrying_capacity.png",
         "Figura 1. Efecto del tamaño K en régimen subcrítico (C1, C2, C3) "
         "con eje normalizado G/K.",
     )
@@ -540,7 +540,7 @@ def _render_resultados(doc: Document) -> None:
     )
     add_picture_with_caption(
         doc,
-        GRAFICAS_DIR / "comparacion_modelos.png",
+        FIGURES_DIR / "model_comparison.png",
         "Figura 2. Comparación de modelos en régimen supercrítico (esc 3, "
         "6, 9). La EDO original colapsa a cero; Holling reproduce las "
         "mesetas observadas.",
@@ -595,7 +595,7 @@ def _render_resultados(doc: Document) -> None:
     )
     add_picture_with_caption(
         doc,
-        GRAFICAS_DIR / "grupo_B_obstaculos.png",
+        FIGURES_DIR / "group_b_obstacles.png",
         "Figura 3. Efecto del obstáculo (esc 5, 10, 11 y 12) con K=100 "
         "y N=10.",
     )
@@ -621,7 +621,7 @@ def _render_resultados(doc: Document) -> None:
     )
     add_picture_with_caption(
         doc,
-        GRAFICAS_DIR / "grupo_C_bifurcacion.png",
+        FIGURES_DIR / "group_c_bifurcation.png",
         "Figura 4. Bifurcación silla-nodo en C3 (K=225) con N = 10, 25, 40.",
     )
 
@@ -811,13 +811,13 @@ def build_bepf(out: Path) -> None:
 
 def main() -> None:
     root = Path(__file__).resolve().parent.parent
-    templates = root / "templates"
+    out_dir = root / "deliverables"
     build_pf(
-        templates
+        out_dir
         / "PF-G2-Bello Ballen, Cristancho Niño, Gordillo Meneses, Vargas Clavijo.docx"
     )
     build_bepf(
-        templates
+        out_dir
         / "BEPF-G2-Bello Ballen, Cristancho Niño, Gordillo Meneses, Vargas Clavijo.docx"
     )
 

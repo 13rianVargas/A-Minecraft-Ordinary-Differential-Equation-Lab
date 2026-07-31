@@ -1,3 +1,21 @@
+# Python
 .venv/
-.DS_Store
 __pycache__/
+*.py[cod]
+.pytest_cache/
+
+# Raw experiment logs — contain player IP addresses, usernames and UUIDs.
+# Never commit these. See CONTRIBUTING.md for how the pipeline is exercised
+# without them.
+logs/
+*.log
+*.log.gz
+
+# Local configuration
+.env
+
+# Editors / OS
+.DS_Store
+.idea/
+.vscode/
+~$*.docx
