@@ -3,7 +3,7 @@
 Technical record of the model, the experimental protocol, the calibration
 results and the instrumentation defects discovered while running the lab.
 Numbers here are reproduced by `scripts/analyze.py` from `data/timeseries.csv`;
-see [Reproducing these numbers](#14-reproducing-these-numbers).
+see [Reproducing these numbers](#15-reproducing-these-numbers).
 
 ---
 
@@ -587,7 +587,16 @@ supercritical scenarios.
 
 ---
 
-## 13. References
+## 13. Authorship
+
+Conducted for the Differential Equations course, 2026-I, Group 2, by Lina
+Andrea Bello Ballén, Julián David Cristancho Niño, Mariana Alejandra Gordillo
+Meneses and Brian Steven Vargas Clavijo, under the supervision of Paul Fernando
+Camargo Toro.
+
+---
+
+## 14. References
 
 - Holling, C. S. (1959). Some characteristics of simple types of predation and
   parasitism. *The Canadian Entomologist*, 91(7), 385–398.
@@ -600,7 +609,7 @@ supercritical scenarios.
 
 ---
 
-## 14. Reproducing these numbers
+## 15. Reproducing these numbers
 
 ```bash
 python scripts/analyze.py data/timeseries.csv

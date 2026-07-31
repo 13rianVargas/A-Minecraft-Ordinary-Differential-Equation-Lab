@@ -285,7 +285,16 @@ Two sentinel scenario ids mark the calibration runs:
 
 ## Authors
 
-Bello Ballén · Cristancho Niño · Gordillo Meneses · Vargas Clavijo
+Universidad — Ecuaciones Diferenciales, 2026-I, Group 2.
+
+| Author | Role |
+|---|---|
+| **Lina Andrea Bello Ballén** | Experimental runs, results analysis |
+| **Julián David Cristancho Niño** | Experimental runs, model refinement |
+| **Mariana Alejandra Gordillo Meneses** | Experimental runs, conclusions |
+| **Brian Steven Vargas Clavijo** | Data engineering, measurement pipeline, quantitative analysis |
+
+Under the supervision of **Paul Fernando Camargo Toro**.
 
 ## License
 
