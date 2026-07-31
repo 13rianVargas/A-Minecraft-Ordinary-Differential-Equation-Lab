@@ -1,0 +1,21 @@
+[00:00:01] [Server thread/INFO]: Starting minecraft server version 1.21
+[00:00:02] [Server thread/INFO]: Preparing level "world-edo"
+[00:00:03] [Server thread/INFO]: Done (1.412s)! For help, type "help"
+[00:00:10] [Server thread/INFO]: [@: Set [Estado del Lab] for #running to 1]
+[00:00:10] [Server thread/INFO]: [@: Set [Estado del Lab] for Corral to 2]
+[00:00:10] [Server thread/INFO]: [@: Set [Estado del Lab] for K to 100]
+[00:00:10] [Server thread/INFO]: [@: Set [Estado del Lab] for ovejas to 4]
+[00:00:11] [Server thread/INFO]: [@: Successfully cloned 100 block(s)]
+[00:00:11] [Server thread/INFO]: [@: Set [Estado del Lab] for t_seg to 0]
+[00:00:20] [Server thread/INFO]: [@: Added 6 to [Estado del Lab] for ovejas (now 10)]
+[00:00:21] [Server thread/INFO]: [@: Successfully cloned 98 block(s)]
+[00:00:21] [Server thread/INFO]: [@: Set [Estado del Lab] for t_seg to 100]
+[00:00:31] [Server thread/INFO]: [@: Successfully cloned 95 block(s)]
+[00:00:31] [Server thread/INFO]: [@: Set [Estado del Lab] for t_seg to 200]
+[00:00:41] [Server thread/INFO]: [@: Successfully cloned 91 block(s)]
+[00:00:41] [Server thread/INFO]: [@: Set [Estado del Lab] for t_seg to 300]
+[00:00:51] [Server thread/INFO]: [@: Successfully cloned 88 block(s)]
+[00:00:51] [Server thread/INFO]: [@: Set [Estado del Lab] for t_seg (now 400)]
+[00:01:01] [Server thread/INFO]: [@: Successfully cloned 86 block(s)]
+[00:01:01] [Server thread/INFO]: [@: Set [Estado del Lab] for t_seg to 500]
+[00:01:11] [Server thread/INFO]: [@: Set [Estado del Lab] for #running to 0]

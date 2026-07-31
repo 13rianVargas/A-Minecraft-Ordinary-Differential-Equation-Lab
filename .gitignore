@@ -11,6 +11,10 @@ logs/
 *.log
 *.log.gz
 
+# ...except the synthetic fixtures the parser tests run against. These are
+# hand-written and contain no player data.
+!tests/fixtures/*.log
+
 # Local configuration
 .env
 
