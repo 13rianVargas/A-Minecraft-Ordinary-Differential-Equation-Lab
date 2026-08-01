@@ -54,10 +54,12 @@ def corral_from_escenario(esc: int) -> int | None:
     """Corral fixed by experimental design, derived from the scenario number.
 
     The `Corral` scoreboard in the log is NOT trustworthy: a defect in the
-    in-world command-block chain records corral 6 as `Corral to 5`, conflating
-    C5 and C6. Since every scenario uses a fixed corral by design, deriving it
-    here makes the parser immune to both that defect and to an operator
-    pressing the wrong button.
+    in-world command-block chain recorded corral 6 as `Corral to 5`, conflating
+    C5 and C6. The chain has since been repaired, but this stays: logs captured
+    before the fix still carry the wrong value, and a quantity fixed by
+    experimental design should not depend on an instrument being configured
+    correctly. Deriving it here also covers an operator pressing the wrong
+    button.
 
     Returns None when the scenario is not part of the design (for example the
     scenario 0 produced by ad-hoc files under `extra/`), in which case the

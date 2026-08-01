@@ -1,4 +1,4 @@
-# Findings
+# AMODEL — Findings
 
 Technical record of the model, the experimental protocol, the calibration
 results and the instrumentation defects discovered while running the lab.
@@ -464,7 +464,7 @@ regex matched only the `Set` form and silently missed these.
 
 ### 9.4 The `Corral` scoreboard conflates C5 and C6
 
-The corral-6 command block writes `Corral to 5` instead of `Corral to 6`. The
+The corral-6 command block wrote `Corral to 5` instead of `Corral to 6`. The
 separate `#corral_activo` scoreboard is correct, but the parser was reading
 `Corral`, so C6 runs were recorded as C5 and the two became indistinguishable.
 
@@ -474,7 +474,12 @@ fixed by design, making the parser immune both to this defect and to an
 operator pressing the wrong button. Files with no scenario in their name fall
 back to the logged value.
 
-*Still open in-world:* the C6 button should be fixed to write `Corral to 6`.
+*Resolved in-world:* the C6 button now writes `Corral to 6` correctly. The
+parser deliberately keeps deriving the corral from the scenario anyway. Two
+reasons: the logs already recorded before the fix still carry the wrong value,
+so the dataset would not be reproducible without it; and a value fixed by
+experimental design should not depend on an instrument being correctly
+configured in the first place.
 
 ### 9.5 LOCAL RESET requires live ticks
 

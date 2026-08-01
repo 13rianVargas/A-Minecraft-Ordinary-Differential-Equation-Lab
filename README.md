@@ -1,4 +1,4 @@
-# Grazing Dynamics — Calibrating a Logistic ODE from Game Telemetry
+# AMODEL — A Minecraft Ordinary Differential Equation Lab
 
 [![Python](https://img.shields.io/badge/Python-3.11%2B-3776AB?logo=python&logoColor=white)](https://www.python.org/)
 [![SciPy](https://img.shields.io/badge/SciPy-1.17-8CAAE6?logo=scipy&logoColor=white)](https://scipy.org/)
@@ -10,6 +10,9 @@
 
 A reproducible measurement pipeline that turns raw Minecraft server logs into
 calibrated ODE parameters, and the experimental result that came out of it.
+
+*A Minecraft Ordinary Differential Equation Lab* — **AMODEL**, which is also
+what it produces, and what the experiment ends up correcting.
 
 ---
 
@@ -87,10 +90,12 @@ captures the current replica no matter how much history precedes it
 ([`parse_log.py:124`](scripts/parse_log.py#L124)).
 
 **Design-derived metadata over observed metadata.** The in-world command block
-for corral 6 writes `Corral to 5`, conflating two corrals. Rather than patch
+for corral 6 wrote `Corral to 5`, conflating two corrals. Rather than patch
 around the symptom, the parser stops trusting that field entirely and derives
-the corral from the scenario number, which is fixed by design. This makes the
-dataset immune both to the defect and to an operator pressing the wrong button
+the corral from the scenario number, which is fixed by design. The instrument
+has since been repaired, and the parser still ignores it — logs captured before
+the fix carry the wrong value, and a quantity fixed by experimental design
+should not depend on an instrument being configured correctly
 ([`parse_log.py:53`](scripts/parse_log.py#L53)).
 
 **Two-stage parameter estimation.** `r` is fitted first from sheep-free runs
@@ -178,8 +183,8 @@ and needs a different correction — see
 ## Installation
 
 ```bash
-git clone https://github.com/13rianVargas/EDO-Project.git
-cd EDO-Project
+git clone https://github.com/13rianVargas/A-Minecraft-Ordinary-Differential-Equation-Lab.git
+cd A-Minecraft-Ordinary-Differential-Equation-Lab
 python -m venv .venv
 source .venv/bin/activate          # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
