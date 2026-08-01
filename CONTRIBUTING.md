@@ -43,7 +43,8 @@ pytest tests/
 not distributed and must never be committed.** Minecraft server logs record the
 IP address, username and UUID of every player who connects, so publishing them
 would expose personal data belonging to third parties. `logs/`, `*.log` and
-`*.log.gz` are all gitignored; leave them that way.
+`*.log.gz` are all gitignored; leave them that way. This is not hypothetical —
+see [SECURITY.md](SECURITY.md) for what happened when it was not enforced.
 
 This means the ingestion stage is not reproducible from outside the lab. To
 keep it verifiable regardless, `parse_log.py` is tested against synthetic

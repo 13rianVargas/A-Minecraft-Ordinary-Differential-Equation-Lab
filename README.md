@@ -287,6 +287,13 @@ Two sentinel scenario ids mark the calibration runs:
 
 ---
 
+## Security
+
+Raw server logs are not distributed: they record the IP address and account
+identity of every player who connected. See [SECURITY.md](SECURITY.md) for the
+controls in place, and for an honest account of the exposure found during the
+pre-publication audit.
+
 ## Authors
 
 Universidad — Ecuaciones Diferenciales, 2026-I, Group 2.
