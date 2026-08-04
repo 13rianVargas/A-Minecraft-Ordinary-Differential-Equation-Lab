@@ -54,6 +54,98 @@ Full derivations, protocol and results: **[docs/FINDINGS.md](docs/FINDINGS.md)**
 
 ---
 
+## How the lab works
+
+You do not need to know Minecraft to follow this. The game happens to implement
+a small, fully deterministic ecology, and the whole project rests on that.
+
+### The three quantities
+
+| In the game | In the model | What it is |
+|---|---|---|
+| Grass blocks inside a fenced corral | `G` | The resource. Grows on its own, gets eaten. |
+| Sheep inside that corral | `N` | The consumers. Fixed for the duration of a run. |
+| Area of the corral | `K` | Carrying capacity — the most grass that can ever fit. A 10×10 corral has `K = 100`. |
+
+A corral is a fenced square filled with grass. Drop in `N` sheep, start the
+clock, and count the grass every few seconds. That count over time is the raw
+data, and everything else is arithmetic.
+
+### How grass grows back
+
+Minecraft does not update every block every tick — that would be far too much
+work. Instead it uses **random ticks**. The world is divided into 16×16×16
+cubes of 4096 blocks, and on every game tick the game picks a few blocks at
+random from each cube and updates only those. How many it picks is the
+`randomTickSpeed` game rule, which defaults to **3**.
+
+So each individual block waits its turn. With 3 picks out of 4096 blocks, any
+given block gets a random tick on average **once every ~68 seconds** (median
+~47 s — the wait is very uneven, which is where the noise in the data comes
+from).
+
+When a grass block does get its random tick, it tries to spread: it makes
+**4 attempts**, each picking a random block in a **3×5×3** box around itself,
+and any dirt block it lands on becomes grass. Two conditions matter: the source
+grass needs light level **9 or brighter** above it, and light has to be able to
+reach the target dirt.
+
+That is the `r·G·(1 − G/K)` half of the model. More grass means more blocks
+rolling for spread, so growth accelerates — but the corral is finite, so as it
+fills up the attempts increasingly land on grass that is already there, and
+growth stalls. That self-braking behaviour is exactly what a logistic term
+describes.
+
+### How sheep eat it
+
+An adult sheep has a **1 in 500** chance, **every other game tick**, of
+starting to graze. A lamb is far greedier at 1 in 25. When a sheep grazes, the
+grass block it is standing on **turns to dirt** and the sheep regrows its wool.
+This only works with the `mobGriefing` game rule on — otherwise sheep regrow
+wool without consuming anything, and there is no experiment.
+
+That is the `− c·N` half: each sheep removes grass at some rate `c`, and there
+are `N` of them.
+
+### The time base
+
+Minecraft normally runs at **20 ticks per second**, so one tick is 50 ms. The
+`/tick rate` command (added in 1.20.3) speeds that up; the runs here used
+`/tick rate 5000`.
+
+This is only an accelerator. Every measurement is timestamped in **game ticks**
+divided by 20 — the `t_segundos` column is in-game seconds, never wall-clock
+seconds. So a run that took three real minutes may cover three in-game hours,
+and the physics is identical either way. The server never actually reached 5000
+TPS under the command-block load, and it does not matter.
+
+### Why measure any of this, if the constants are public?
+
+Here is the part worth sitting with. Every number above is documented. So why
+not just compute the answer?
+
+Take the sheep. 1 in 500 every other tick, at 20 ticks per second, is 10 rolls
+per second, giving **0.02 grass blocks per sheep per second** as the ceiling.
+
+Measured: **0.0104**. About **52 %** of that ceiling.
+
+The missing half is everything the constants do not tell you. A sheep can only
+eat the block it is standing on, so it has to *walk* to grass first. It bumps
+into other sheep, into fences, into water. It wanders. The published rate is
+what a sheep does when grass is already underfoot; the measured rate is what a
+sheep achieves in a real corral.
+
+And that gap is not constant — it grows as grass gets scarce and the sheep
+spend more of their time searching. Which is precisely why the constant-drain
+term `− c·N` fails in the crowded scenarios, and why the saturating
+Holling term `− c·N·G/(G+h)` fixes it. The correction this project ends up
+making is, in the end, a statement about how long a sheep spends looking.
+
+**Sources:** [Grass Block](https://minecraft.wiki/w/Grass_Block) ·
+[Sheep](https://minecraft.wiki/w/Sheep) · [Tick](https://minecraft.wiki/w/Tick)
+
+---
+
 ## System architecture
 
 ```mermaid

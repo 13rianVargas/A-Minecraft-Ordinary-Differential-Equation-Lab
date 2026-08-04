@@ -91,6 +91,15 @@ corral, spawn a controlled number of sheep, start and stop a run, and count the
 grass blocks remaining. Counts and elapsed time are written to scoreboards,
 which the server echoes into its log — that log is the raw measurement record.
 
+The underlying game mechanics — random ticks and the `randomTickSpeed` game
+rule driving grass spread, the per-tick grazing probability, and the `/tick
+rate` time base — are described with their published constants in
+[How the lab works](../README.md#how-the-lab-works) in the README. The relevant
+point for what follows: the published constants give a grazing ceiling of
+0.02 blocks/(sheep·s), while the calibrated `c` is 0.0104, about 52 % of it.
+The shortfall is search and pathing time, and it is the physical basis for the
+saturating correction in section 8.
+
 | Corral | Geometry | K | Feature |
 |---|---|---|---|
 | C1 | 5×5 | 25 | regular |
