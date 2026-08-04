@@ -211,7 +211,11 @@ the Holling variant and the bifurcation threshold, so numerical results always
 have an analytic check to sit against.
 
 **Deterministic and reproducible.** `analyze.py` regenerates every published
-number and figure from the committed CSV. Repeated runs are byte-identical.
+number and figure from the committed CSV. Two runs on the same machine are
+byte-identical; across platforms the calibration agrees to better than 1e-9,
+which is far tighter than the six significant figures ever quoted. Exact
+bit-for-bit equality across platforms is not achievable here — `curve_fit`
+runs on platform-tuned BLAS — and CI asserts both properties separately.
 
 ---
 

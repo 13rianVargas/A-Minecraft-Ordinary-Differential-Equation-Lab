@@ -26,9 +26,17 @@ python scripts/analyze.py data/timeseries.csv
 ```
 
 This rewrites `data/calibration.json`, `data/rms.csv` and all 16 figures under
-`figures/`. Output is deterministic — a second run is byte-identical. If a
-regenerated file differs from the committed one, that is a real change in
-behaviour and needs explaining in the commit message.
+`figures/`. Output is deterministic: a second run on the same machine is
+byte-identical. If a regenerated file differs from the committed one on your
+machine, that is a real change in behaviour and needs explaining in the commit
+message.
+
+Across platforms, expect the last digits of `data/calibration.json` to differ —
+`curve_fit` runs on platform-tuned BLAS. The agreement is better than 1e-9,
+against six significant figures ever quoted, and
+`tests/test_reproducibility.py` pins it with explicit tolerances. Do not commit
+a `calibration.json` regenerated on a different machine just to make a diff go
+away.
 
 To rebuild the report documents:
 

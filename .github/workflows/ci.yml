@@ -33,11 +33,23 @@ jobs:
       - name: Run tests
         run: pytest tests/ -v
 
-      - name: Verify the analysis reproduces the committed results
+      # Cross-platform agreement with the published numbers is asserted by
+      # tests/test_reproducibility.py, with documented tolerances. It is not
+      # checked byte-for-byte here: curve_fit runs on platform-tuned BLAS, so
+      # the last digits of the float repr legitimately differ between macOS
+      # and Linux. What must hold everywhere is determinism on a given
+      # machine — that is the property whose absence caused the scenario-9 bug.
+      - name: Verify the analysis is deterministic
         run: |
-          python scripts/analyze.py data/timeseries.csv
-          git diff --exit-code --stat data/rms.csv data/calibration.json \
-            || { echo "::error::Regenerating the analysis changed the committed results."; exit 1; }
+          python scripts/analyze.py data/timeseries.csv \
+            --out-figures /tmp/a/figures --calibration-json /tmp/a/cal.json --rms-csv /tmp/a/rms.csv
+          python scripts/analyze.py data/timeseries.csv \
+            --out-figures /tmp/b/figures --calibration-json /tmp/b/cal.json --rms-csv /tmp/b/rms.csv
+          diff /tmp/a/cal.json /tmp/b/cal.json \
+            || { echo "::error::calibration is not deterministic across runs"; exit 1; }
+          diff /tmp/a/rms.csv  /tmp/b/rms.csv \
+            || { echo "::error::RMS table is not deterministic across runs"; exit 1; }
+          echo "Two independent runs produced identical results."
 
   no-raw-logs:
     name: no raw logs committed

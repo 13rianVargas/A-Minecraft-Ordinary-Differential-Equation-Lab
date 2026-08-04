@@ -630,7 +630,11 @@ python scripts/analyze.py data/timeseries.csv
 ```
 
 Regenerates `data/calibration.json`, `data/rms.csv` and all 16 figures from the
-committed time series. Output is deterministic: repeated runs are byte-identical.
+committed time series. Two runs on the same machine are byte-identical.
+Across platforms the calibration agrees to better than 1e-9 — bit-for-bit
+equality is not achievable, since `curve_fit` runs on platform-tuned BLAS —
+and `tests/test_reproducibility.py` pins the published values with explicit
+tolerances.
 
 The raw server logs are **not** distributed — they contain player IP addresses,
 usernames and UUIDs. `data/timeseries.csv` is the published entry point, and
