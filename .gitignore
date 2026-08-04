@@ -15,6 +15,10 @@ logs/
 # hand-written and contain no player data.
 !tests/fixtures/*.log
 
+# Local backups of raw lab data. Same rule as logs/ — these hold player IP
+# addresses, usernames and UUIDs and must never be committed.
+backups/
+
 # Local configuration
 .env
 

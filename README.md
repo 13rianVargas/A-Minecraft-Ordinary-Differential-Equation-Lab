@@ -6,7 +6,7 @@
 [![pandas](https://img.shields.io/badge/pandas-3.0-150458?logo=pandas&logoColor=white)](https://pandas.pydata.org/)
 [![Matplotlib](https://img.shields.io/badge/Matplotlib-3.10-11557C)](https://matplotlib.org/)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
-[![Tests](https://img.shields.io/badge/tests-11%20passing-brightgreen.svg)](tests/)
+[![CI](https://github.com/13rianVargas/A-Minecraft-Ordinary-Differential-Equation-Lab/actions/workflows/ci.yml/badge.svg)](https://github.com/13rianVargas/A-Minecraft-Ordinary-Differential-Equation-Lab/actions/workflows/ci.yml)
 
 A reproducible measurement pipeline that turns raw Minecraft server logs into
 calibrated ODE parameters, and the experimental result that came out of it.
@@ -308,6 +308,13 @@ Run the tests:
 ```bash
 pytest tests/
 ```
+
+The suite is in two halves. `test_parse_log.py` covers the ingestion stage
+against synthetic fixtures. `test_reproducibility.py` recomputes the
+calibration and the whole RMS table from the committed time series and
+compares them against the published results — so the reproducibility claim
+above is verified on every push rather than merely asserted. CI additionally
+refuses any commit that tracks a raw log, an IP address or an email.
 
 ### Live extraction
 

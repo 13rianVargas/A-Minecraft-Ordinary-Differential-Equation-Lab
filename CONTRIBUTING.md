@@ -8,7 +8,13 @@ Python 3.11 or newer; developed and verified on 3.14.5.
 python -m venv .venv
 source .venv/bin/activate          # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
+git config core.hooksPath .githooks
 ```
+
+That last line installs a `pre-commit` hook that refuses any commit staging a
+raw log, or any file containing an IP address or email. It is a backstop for
+`git add -f` and for someone editing `.gitignore`. CI enforces the same rules,
+but the hook catches it before the data ever leaves your machine.
 
 ## Running the pipeline
 

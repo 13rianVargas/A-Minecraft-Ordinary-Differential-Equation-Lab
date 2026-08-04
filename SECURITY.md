@@ -59,6 +59,9 @@ one. The actual controls are the ones below.
 | Host, account, key path and container name are read from the environment; none are hardcoded | [`scripts/extract.sh`](scripts/extract.sh), [`.env.example`](.env.example) |
 | `.env` is gitignored; `.env.example` carries placeholders only | [`.gitignore`](.gitignore) |
 | The parser is tested against synthetic fixtures, so no real log is ever needed to verify it | [`tests/fixtures/`](tests/fixtures/) |
+| A `pre-commit` hook refuses to stage raw logs, IP addresses or emails | [`.githooks/pre-commit`](.githooks/pre-commit) |
+| CI independently fails any push that tracks a log, an IP address or an email | [`.github/workflows/ci.yml`](.github/workflows/ci.yml) |
+| Reproducibility is asserted by tests, not just claimed in prose | [`tests/test_reproducibility.py`](tests/test_reproducibility.py) |
 | The constraint is stated where a contributor will actually read it | [`CONTRIBUTING.md`](CONTRIBUTING.md) |
 
 ## If you run this pipeline yourself
